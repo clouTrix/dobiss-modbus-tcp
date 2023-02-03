@@ -1,6 +1,7 @@
 package testutils
 
 import com.sun.net.httpserver.{HttpExchange, HttpServer}
+import org.scalatest.Assertions.fail
 
 import java.net.{InetSocketAddress, ServerSocket}
 import scala.util.Using
@@ -26,10 +27,7 @@ class MockHttpServer {
                                                             }
                                                           }
                                                         .headOption
-                                                        .getOrElse { println("ERROR") }: Unit)
+                                                        .getOrElse { fail() }: Unit)
 
-  def register(path: String)(handler: => String): Unit = {
-    handlers += (path -> { () => handler })
-    println(handlers)
-  }
+  def register(path: String)(handler: => String): Unit = handlers += (path -> { () => handler })
 }

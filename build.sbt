@@ -18,7 +18,8 @@ lazy val dockerSettings = Seq(
   Docker / daemonGroup    := "cloutrix",
   Docker / daemonUserUid  := Some("1666"),
   Docker / daemonGroupGid := Some("1666"),
-  dockerBaseImage         := "azul/zulu-openjdk-alpine:14",
+//  dockerBaseImage         := "azul/zulu-openjdk-alpine:14",
+  dockerBaseImage         := "azul/zulu-openjdk-alpine:17-jre-headless",
   dockerExposedPorts      := Seq(1502),
   Universal / javaOptions := JavaOpts.map("-J" + _)
 )
@@ -52,7 +53,8 @@ lazy val coreDependencies = Seq(
   libraryDependencies ++= Deps.All.Netty,
   libraryDependencies ++= Seq(
     Deps.ScalaHttp,
-    Deps.Config
+    Deps.Config,
+    Deps.Xml
   )
 )
 
