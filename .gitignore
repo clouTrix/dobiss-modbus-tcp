@@ -1,0 +1,11 @@
+# SBT
+project/project/
+project/target/
+target/
+.bsp/
+
+# INTELLIJ
+*.log
+*.iml
+.idea/
+

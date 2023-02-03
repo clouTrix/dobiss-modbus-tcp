@@ -71,6 +71,49 @@ Used in the Dobiss-NXT UI to visualize the current status and previous 24 hour g
 | --------------------------------------- | ----------------------------------- |
 |![](assets/dobiss-energy-ui-current.png) | ![](assets/dobiss-energy-ui-24h.png)|
 
+## Add other inverter types
+
+This project is created to hook up the EnvoyS (Enlighten) inverters on to the Dobiss-NXT, but can easily be extended
+to support other brands, as long as they have an HTTP API that can be used to query their metrics.
+
+> Have a look at the implementation for [EnvoyS](./src/main/scala/cloutrix/energy/envoy/EnvoyDataProvider.scala) as example how such implementation could look like.
+
+**But basically it's following these steps**:
+
+- create your own `DataProvider`
+  ```
+  class MyDataProvider(config: Config) extends HttpDataPoller with DataProviderCache
+  ```
+- register the HTTP endpoints to be scraped on your inverter(s)
+  ```
+  register("my-endpoint-id" -> ("http/path/to/query", myCodec))
+  ```
+- implement a _Codec_ to transform the HTTP received `String` into your own data format  
+- implement `onData` to process/cache the queried metrics
+  ```
+  override def onData(id: String, data: Any): Unit = {
+    // your logic goes here
+    // the type of 'data' will be whatever type your codec (for that endpoint id) returns
+    // extract 'current production' and 'total production' from your data
+    // and cache it for delivery through the ModBus pipeline when Dobiss-NXT would issue a query for it.
+    // > cache(currentProduction = ..., totalProduction = ...)
+  }
+  ```
+- configure your DataProvider (in [application.conf](./src/main/resources/application.conf))
+  ```
+  plugins {
+    MyInverter = ${mine}
+  }
+  
+  mine {
+    class = ... // full class path/name of your DataProvider implementation
+    config {
+        ... // whatever config is needed to be fed to your DataProvider
+            // host-ip and port are probably already the 2 mandatory ones.
+    }
+  }
+  ```
+
 # Dobiss-Modbus-TCP-Proxy
 
 The project is written in Scala (2.13) and can easily be containerized to run on a NAS, Raspberry-PI, or any other platform.
@@ -134,3 +177,11 @@ Following environment variables can be used to configure the application:
 | `MODBUS_TCP_PORT`      | 1502    | listening port of the proxy service |
 | `ENVOY_HOST`           | -       | IP address of EnvoyS                |
 | `ENVOY_PORT`           | 80      | API listening port of EnvoyS        |
+
+## TODOs
+ - better (inline) code comments
+ - HTTP authentication
+ - metrics (prometheus)
+
+---
+
