@@ -171,13 +171,12 @@ Following environment variables can be used to configure the application:
 | env                    | default | description                         |
 |------------------------|---------|-------------------------------------|
 | `MODBUS_TCP_PORT`      | 1502    | listening port of the proxy service |
-| `ENVOY_HOST`           | -       | IP address of EnvoyS                |
-| `ENVOY_PORT`           | 80      | API listening port of EnvoyS        |
 
 ## TODOs
  - better (inline) code comments
  - HTTP authentication
  - metrics (prometheus)
-
+ - Kubernetes deployment (K3S)
+ - easy way to push custom configuration to the docker container
+ - GitOps build/test pipeline
 ---
-
