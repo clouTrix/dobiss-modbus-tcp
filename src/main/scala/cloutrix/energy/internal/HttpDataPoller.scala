@@ -63,7 +63,8 @@ abstract class HttpDataPoller extends ScheduledDataPoller with HttpClient with L
 
       Try(onDataLogged(id, doHttpRequest(path, codec)))
         .recover {
-          case ex: Throwable => logger.error(s"ERROR: ${ex.toString}", ex)
+          case ex: java.net.ConnectException => logger.warn(s"Unable to connect to ${httpConfig.host} on port ${httpConfig.port} - reason: ${ex.getMessage}")
+          case ex: Throwable                 => logger.error(s"Critical error occurred: ${ex.toString}", ex)
         }
     }
 
@@ -71,6 +72,7 @@ abstract class HttpDataPoller extends ScheduledDataPoller with HttpClient with L
   }
 
   protected def onStart(): Unit = {}
+
   protected def onStop(): Unit = {}
 
   protected def onData(id: String, data: Any): Unit
