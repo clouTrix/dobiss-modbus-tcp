@@ -99,7 +99,7 @@ to support other brands, as long as they have an HTTP API that can be used to qu
     // > cache(currentProduction = ..., totalProduction = ...)
   }
   ```
-- configure your DataProvider (in [application.conf](./src/main/resources/application.conf))
+- configure your DataProvider (in [application.conf](src/test/resources/application.conf))
   ```
   plugins {
     MyInverter = ${mine}
@@ -158,15 +158,11 @@ modbus {
 poll.interval = "1 minute"
 
 plugins = {
-    EnvoyS = ${envoy}
-}
-
-envoy {
+    EnvoyS {
       class = cloutrix.energy.envoy.EnvoyDataProvider
-      config {
-          host = x.x.x.x        // IP address of EnvoyS
-          port = 80             // HTTP listening port of EnvoyS
-      }
+      config.host = x.x.x.x   // IP address of EnvoyS
+      config.port = 80        // HTTP listening port of EnvoyS
+    }
 }
 ```
 
@@ -175,13 +171,12 @@ Following environment variables can be used to configure the application:
 | env                    | default | description                         |
 |------------------------|---------|-------------------------------------|
 | `MODBUS_TCP_PORT`      | 1502    | listening port of the proxy service |
-| `ENVOY_HOST`           | -       | IP address of EnvoyS                |
-| `ENVOY_PORT`           | 80      | API listening port of EnvoyS        |
 
 ## TODOs
  - better (inline) code comments
  - HTTP authentication
  - metrics (prometheus)
-
+ - Kubernetes deployment (K3S)
+ - easy way to push custom configuration to the docker container
+ - GitOps build/test pipeline
 ---
-

@@ -3,10 +3,13 @@ package cloutrix.energy.internal
 import java.util.concurrent.ScheduledExecutorService
 import scala.concurrent.duration.FiniteDuration
 
-trait TaskScheduling {
+trait CanWaitForTermination {
+  def awaitTermination(): Unit = ()
+}
+
+trait TaskScheduling extends CanWaitForTermination {
   def start(interval: FiniteDuration)(implicit es: ScheduledExecutorService): Unit
   def stop(): Unit
-  def awaitTermination(): Unit = ()
 }
 
 object TaskScheduling {

@@ -1,14 +1,22 @@
 package cloutrix.energy.internal
 
 import com.typesafe.config.Config
+import com.typesafe.scalalogging.StrictLogging
 
 case class PluginDesc(name: String, config: Config, ctor: Config => DataProvider)
 
-object Plugin {
-  def loadClass(clazz: String)(config: Config): DataProvider = Class.forName(clazz)
-                                                                    .getDeclaredConstructor(classOf[Config])
-                                                                    .newInstance(config)
-                                                                    .asInstanceOf[DataProvider]
+object Plugin extends StrictLogging {
+  def loadClass(clazz: String): Config => DataProvider = {
+    val ctor = Class.forName(clazz).getDeclaredConstructor(classOf[Config])
+    logger.debug(s"loaded plugin - class: ${ctor.getName}")
 
-  def load(pluginDescs: PluginDesc*): Seq[DataProvider] = pluginDescs.map(desc => desc.ctor(desc.config))
+    config => ctor
+               .newInstance(config)
+               .asInstanceOf[DataProvider]
+  }
+
+  def load(pluginDescs: PluginDesc*): Seq[DataProvider] =
+    pluginDescs
+      .tapEach(ps => logger.info(s"activate plugin - name: ${ps.name}, "))
+      .map(desc => desc.ctor(desc.config))
 }

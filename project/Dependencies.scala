@@ -7,6 +7,7 @@ object Version {
   final val Config = "1.4.2"
   final val ScalaHttp = "2.4.2"
   final val Netty = "4.1.87.Final"
+  final val Xml = "2.1.0"
 
   final val ScalaTest = "3.2.10"
 }
@@ -20,6 +21,7 @@ object Deps {
 
   final val Config: ModuleID = "com.typesafe" % "config" % Version.Config
   final val ScalaHttp: ModuleID = "org.scalaj" %% "scalaj-http" % Version.ScalaHttp excludeAll ExclusionRule("org.scala-lang")
+  final val Xml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % Version.Xml
 
   final val NettyCodec: ModuleID = "io.netty" % "netty-codec" % Version.Netty
   final val NettyHandler: ModuleID = "io.netty" % "netty-handler" % Version.Netty
