@@ -2,38 +2,51 @@ package cloutrix.energy
 
 import cloutrix.energy.internal._
 import cloutrix.energy.sunspec.{Sunspec, SunspecDataMapper}
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.scalalogging.StrictLogging
 
 import java.util.concurrent.{Executors, ScheduledExecutorService}
 
-object DobissModbusTcpProxy extends App with LazyLogging {
+object DobissModbusTcpProxy extends StrictLogging {
   logger.info("start Dobiss ModBus-TCP proxy")
 
-  private val config = AppConfig.load()
-  implicit private val taskScheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+  var stop: () => Unit = () => {}
+  var awaitTermination: () => Unit = () => {}
 
-  private val providers = Plugin.load(config.plugins: _*)
-  private val dataProvider = new AccumulatingDataProvider(providers)
-  private val server = new ModbusServer(
-    config,
-    new SunspecDataMapper(Map(
-      Sunspec.AccumulatedCurrentActivePower.address -> (() => dataProvider.currentProduction),
-      Sunspec.TotalYieldWh.address -> (() => dataProvider.totalProduction)
-    ))
-  )
+  def runReconfigured(reconf: Config => Config): Unit = {
+    val config = AppConfig.load(reconf(ConfigFactory.load()))
+    implicit val taskScheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
-  server.start()
-  TaskScheduling.findAll(providers:_*).foreach(_.start(config.pollInterval))
+    val providers = Plugin.load(config.plugins: _*)
+    val dataProvider = new AccumulatingDataProvider(providers)
+    val server = new ModbusServer(
+      config,
+      new SunspecDataMapper(Map(
+        Sunspec.AccumulatedCurrentActivePower.address -> (() => dataProvider.currentProduction),
+        Sunspec.TotalYieldWh.address -> (() => dataProvider.totalProduction)
+      ))
+    )
 
-  sys.addShutdownHook {
-    server.stop()
-    server.awaitTermination()
+    server.start()
+    TaskScheduling.findAll(providers: _*).foreach(_.start(config.pollInterval))
+
+    stop = () => {
+      logger.info("shutdown triggered, close the application")
+      server.stop()
+      TaskScheduling.findAll(providers: _*).foreach(_.stop())
+      server.awaitTermination()
+    }
+
+    awaitTermination = () => server.awaitTermination()
+
+    System.gc()
+    logger.info(s"Dobiss ModBus-TCP proxy - Bye bye!")
   }
 
-  System.gc()
-
-  server.awaitTermination()
-  TaskScheduling.findAll(providers:_*).foreach(_.stop())
-
-  logger.info(s"Dobiss ModBus-TCP proxy - shut down")
+  // main entry point
+  def main(args: Array[String]): Unit = {
+    runReconfigured(identity)
+    sys.addShutdownHook { stop() }
+    awaitTermination()
+  }
 }

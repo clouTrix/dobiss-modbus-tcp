@@ -3,11 +3,10 @@ package testutils
 import com.sun.net.httpserver.{HttpExchange, HttpServer}
 import org.scalatest.Assertions.fail
 
-import java.net.{InetSocketAddress, ServerSocket}
+import java.net.InetSocketAddress
 import scala.util.Using
 
-class MockHttpServer {
-  private def anyFreePort = Using.resource(new ServerSocket(0))(_.getLocalPort)
+class MockHttpServer extends TestSockets {
   private val server = HttpServer.create(new InetSocketAddress("localhost", anyFreePort), 0)
 
   def port: Int = server.getAddress.getPort

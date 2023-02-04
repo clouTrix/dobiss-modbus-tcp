@@ -1,12 +1,15 @@
 package cloutrix.energy.internal
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigObject}
+import com.typesafe.config.{Config, ConfigObject, ConfigRenderOptions}
+import com.typesafe.scalalogging.LazyLogging
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.SetHasAsScala
 
-class AppConfig (inner: Config) {
+class AppConfig (inner: Config) extends LazyLogging {
+  logger.debug(s"inner config:\n${inner.root().render(ConfigRenderOptions.concise().setJson(true).setFormatted(true))}")
+
   import AppConfig._
   lazy val modbusTcpPort: Int = inner.getInt(MODBUS_TCP_PORT_CONFIG)
   lazy val pollInterval: FiniteDuration = FiniteDuration(
@@ -32,5 +35,5 @@ object AppConfig {
   private final val PLUGIN_CONFIG_BLOCK: String = "config"
   private final val POLL_INTERVAL_CONFIG: String = "poll.interval"
 
-  def load(): AppConfig = new AppConfig(ConfigFactory.load())
+  def load(config: Config): AppConfig = new AppConfig(config)
 }
