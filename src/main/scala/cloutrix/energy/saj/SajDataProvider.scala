@@ -11,11 +11,12 @@ class SajDataProvider(config: Config) extends HttpDataPoller with DataProviderCa
 
   override def onData(id: String, data: Any): Unit = {
     data match {
-      case saj: SajMeterReading =>
+      case dd: SajMeterReading =>
+        logger.info(s"current production data: ${dd}")
         //TODO: verify!!
         // p-ac    is expressed in 'W', so OK for what Dobiss-NXT expects
         // e-total is expressed in 'kWh', so we need to convert it to 'Wh' what Dobiss-NXT expects
-        cache(currentProduction = Some(saj.pAc.toInt), totalProduction = Some((saj.eTotal * 1000.0).toInt))
+        cache(currentProduction = Some(dd.pAc.toInt), totalProduction = Some((dd.eTotal * 1000.0).toInt))
 
       case _ =>
         logger.warn(s"unhandled data delivery - id: ${id}, data: ${data}")

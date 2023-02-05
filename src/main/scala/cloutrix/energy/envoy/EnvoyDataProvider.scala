@@ -15,6 +15,7 @@ class EnvoyDataProvider(config: Config) extends HttpDataPoller with DataProvider
             d.all.find(_.measurementType == "production")
               .tapEach(_ => cancelTask("metadata"))
               .map(_.eid)
+              .tapEach(eid => logger.info(s"production eId: ${eid}"))
               .head
   }
 
@@ -28,6 +29,7 @@ class EnvoyDataProvider(config: Config) extends HttpDataPoller with DataProvider
     {
       case (_, d: EnvoyMeterReadings) =>
         d.all.find(_.eid == eid)
+          .tapEach(dd => logger.info(s"current production data: ${dd}"))
           .foreach(dd =>
             cache(currentProduction = Some(dd.activePower.toInt), totalProduction = Some(dd.actEnergyDlvd.toInt))
           )
