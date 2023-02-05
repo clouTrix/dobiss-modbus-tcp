@@ -35,12 +35,11 @@ object DobissModbusTcpProxy extends StrictLogging {
       server.stop()
       TaskScheduling.findAll(providers: _*).foreach(_.stop())
       server.awaitTermination()
+      logger.info(s"Dobiss ModBus-TCP proxy - Bye bye!")
     }
 
     awaitTermination = () => server.awaitTermination()
-
     System.gc()
-    logger.info(s"Dobiss ModBus-TCP proxy - Bye bye!")
   }
 
   // main entry point
