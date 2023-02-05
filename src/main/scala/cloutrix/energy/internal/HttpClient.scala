@@ -22,13 +22,6 @@ trait HttpClient {
     def urlFor(path: String) = new URL("http", config.host, config.port, path)
     def reqFor(url: URL) = Http(url.toString).timeout(config.connectionTimeout.toMillis.toInt, config.readTimeout.toMillis.toInt)
 
-    Option(reqFor(urlFor(path)))
-      .map(_.asString)
-      .filter(_.isSuccess)
-      .map(_.body)
-      .map(reader)
-      .getOrElse {
-        throw new RuntimeException("unable to handle HTTP request")
-      }
+    reader(reqFor(urlFor(path)).asString.body)
   }
 }
