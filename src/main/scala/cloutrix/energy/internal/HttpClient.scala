@@ -4,7 +4,6 @@ import scalaj.http.Http
 
 import java.net.URL
 import scala.concurrent.duration.{Duration, DurationInt}
-import scala.util.Try
 
 case class HttpConfig(
                        host: String,

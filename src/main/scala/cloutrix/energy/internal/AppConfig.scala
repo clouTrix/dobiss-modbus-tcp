@@ -1,12 +1,12 @@
 package cloutrix.energy.internal
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigObject, ConfigRenderOptions, ConfigValueFactory}
+import com.typesafe.config._
 import com.typesafe.scalalogging.LazyLogging
 
-import java.net.{InetAddress, URI, URL}
+import java.net.URI
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
-import scala.jdk.CollectionConverters.{MapHasAsJava, SetHasAsScala}
+import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.util.Try
 
 class AppConfig (inner: Config) extends LazyLogging {
