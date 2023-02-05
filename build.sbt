@@ -13,12 +13,11 @@ lazy val JavaOpts = Seq(
 )
 
 lazy val dockerSettings = Seq(
-  Docker/ packageName     := (ThisBuild / name).value,
-  Docker / daemonUser     := "cloutrix",
-  Docker / daemonGroup    := "cloutrix",
+  Docker/ packageName     := "cloutrix/dobiss-modbus-tcp",
+  Docker / daemonUser     := "dobiss",
+  Docker / daemonGroup    := "dobiss",
   Docker / daemonUserUid  := Some("1666"),
   Docker / daemonGroupGid := Some("1666"),
-//  dockerBaseImage         := "azul/zulu-openjdk-alpine:14",
   dockerBaseImage         := "azul/zulu-openjdk-alpine:17-jre-headless",
   dockerExposedPorts      := Seq(1502),
   Universal / javaOptions := JavaOpts.map("-J" + _)
@@ -39,8 +38,7 @@ lazy val releaseBuildSettings = Seq(
     setReleaseVersion,
     commitReleaseVersion,
     tagRelease,
-    releaseStepTask(Docker / publishLocal),
-    releaseStepTask(assembly),
+    releaseStepTask(Docker / publish),
     setNextVersion,
     commitNextVersion,
     pushChanges
