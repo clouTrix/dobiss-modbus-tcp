@@ -55,14 +55,14 @@ abstract class HttpDataPoller extends ScheduledDataPoller with HttpClient with L
 
   final protected def register[T](action: (String, (String, String => T)), autoStart: Boolean = true)(implicit httpConfig: HttpConfig): Unit = {
     val (id, (path, codec)) = action
-    def task: Runnable = () => {
+    def task: Runnable = {
       def onDataLogged(id: String, data: Any): Unit = {
         logger.debug(s"got data - id: ${id}, path: ${path}, data: ${data}")
         onData(id, doHttpRequest(path, codec))
       }
 
-      Try(onDataLogged(id, doHttpRequest(path, codec)))
-        .recover { case ex: Throwable => onError(ex) }
+      () => Try(onDataLogged(id, doHttpRequest(path, codec)))
+              .recover { case err: Throwable => onError(err) }
     }
 
     actions += (id -> (task, autoStart))

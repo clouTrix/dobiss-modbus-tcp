@@ -1,5 +1,6 @@
 package cloutrix.energy
 
+import cloutrix.energy.internal.Utils.positiveOrElse
 import cloutrix.energy.internal._
 import cloutrix.energy.sunspec.{Sunspec, SunspecDataMapper}
 import com.typesafe.config.{Config, ConfigFactory}
@@ -22,8 +23,13 @@ object DobissModbusTcpProxy extends StrictLogging {
     val server = new ModbusServer(
       config,
       new SunspecDataMapper(Map(
-        Sunspec.AccumulatedCurrentActivePower.address -> (() => dataProvider.currentProduction),
-        Sunspec.TotalYieldWh.address -> (() => dataProvider.totalProduction)
+        // we need to make sure the returned number is always >= 0
+        // as Dobiss can not deal with negative numbers because of a mis-interpretation on their side.
+        // SunSpec describes the registers as SIGNED, while Dobiss-NXT basically throws away the sign
+        // which would result in Dobiss-NXT showing 65526W production instead of -10W (10W consumption)
+        // ( and EnvoyS remains online during the night, showing negative values for production )
+        Sunspec.AccumulatedCurrentActivePower.address -> (() => positiveOrElse(0)(dataProvider.currentProduction)),
+        Sunspec.TotalYieldWh.address                  -> (() => positiveOrElse(0)(dataProvider.totalProduction))
       ))
     )
 

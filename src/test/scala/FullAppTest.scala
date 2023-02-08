@@ -4,10 +4,12 @@ import envoy.Envoy
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.time.{Second, Seconds, Span}
+import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import saj.SAJ
 import testutils.{ByteConversions, MockHttpServer, TestSockets}
+
+import scala.concurrent.duration.DurationInt
 
 class FullAppTest extends AnyWordSpec with Matchers with BeforeAndAfterAll with TestSockets with ByteConversions with Eventually {
   private val mockEnvoy = new MockHttpServer
@@ -16,10 +18,15 @@ class FullAppTest extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
 
   private lazy val listeningPort = anyFreePort
 
+  private val pollInterval = 1.second
+  private val waitTime = Span(pollInterval.toMillis * 2, Milliseconds)
+  private val waitInterval = waitTime.scaledBy(0.5)
+
   // loaded from 'application.conf' and overrides for HTTP servers
   private def configForTest(config: Config): Config = {
     config
       .withValue("modbus.tcp.port", ConfigValueFactory.fromAnyRef(Int.box(listeningPort)))
+      .withValue("poll.interval", ConfigValueFactory.fromAnyRef(s"${pollInterval.toMillis} milliseconds"))
       .withValue("plugins.EnvoyS.config.port", ConfigValueFactory.fromAnyRef(Int.box(mockEnvoy.port)))
       .withValue("plugins.SAJ-1.config.port", ConfigValueFactory.fromAnyRef(Int.box(mockSaj_1.port)))
       .withValue("plugins.SAJ-2.config.port", ConfigValueFactory.fromAnyRef(Int.box(mockSaj_2.port)))
@@ -51,9 +58,27 @@ class FullAppTest extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
 
     // ERROR logs can appear here as we're issuing ModBus request while the data is not yet cached from querying the (mocked) inverters
     // (hence the 'eventually')
-    eventually(timeout(Span(10, Seconds)), interval(Span(1, Second))) {
+    eventually(timeout(waitTime), interval(waitInterval)) {
       LastInt(sendTo(listeningPort)(raw30529, 13)) should be(7000)  // all actEnergyDlvd values (in Wh) summed
       LastInt(sendTo(listeningPort)(raw30775, 13)) should be(70)    // all activePower (in W) summed
+    }
+
+    note("and properly handle negative values coming from the inverters")
+
+    mockEnvoy.register("/ivp/meters/readings")(Envoy.sampleMeterReadings(activePower = -10.0, actEnergyDlvd = 1000.0))
+    mockSaj_1.register("/real_time_data.xml")(SAJ.sampleMeterReadings(activePower = -10.0, actEnergyDlvd = 1.0 /*kWh*/))
+    mockSaj_2.register("/real_time_data.xml")(SAJ.sampleMeterReadings(activePower = -10.0, actEnergyDlvd = 1.0 /*kWh*/))
+
+    eventually(timeout(waitTime), interval(waitInterval)) {
+      LastInt(sendTo(listeningPort)(raw30775, 13)) should be(0)
+    }
+
+    mockEnvoy.register("/ivp/meters/readings")(Envoy.sampleMeterReadings(activePower = -10.0, actEnergyDlvd = 1000.0))
+    mockSaj_1.register("/real_time_data.xml")(SAJ.sampleMeterReadings(activePower =  5.0, actEnergyDlvd = 1.0 /*kWh*/))
+    mockSaj_2.register("/real_time_data.xml")(SAJ.sampleMeterReadings(activePower = 10.0, actEnergyDlvd = 1.0 /*kWh*/))
+
+    eventually(timeout(waitTime), interval(waitInterval)) {
+      LastInt(sendTo(listeningPort)(raw30775, 13)) should be(5)
     }
 
     DobissModbusTcpProxy.stop()

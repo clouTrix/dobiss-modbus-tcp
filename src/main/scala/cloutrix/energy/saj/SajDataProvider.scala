@@ -11,8 +11,8 @@ class SajDataProvider(config: Config) extends HttpDataPoller with DataProviderCa
 
   override def onError(cause: Throwable): Unit = {
     cause match {
-      case _: java.net.ConnectException =>
-        logger.warn(s"Unable to connect to ${httpConfig.host} on port ${httpConfig.port}, assume off-line")
+      case _: java.net.NoRouteToHostException =>
+        logger.warn(s"Unable to connect to ${httpConfig.host} on port ${httpConfig.port}, assume it's off-line")
         cache(currentProduction = Some(0))
 
       case ex: org.xml.sax.SAXParseException =>
