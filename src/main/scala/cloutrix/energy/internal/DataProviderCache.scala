@@ -9,7 +9,7 @@ trait DataProviderCache extends DataProvider {
     totalProduction.map(Some(_)).foreach(tp = _)
   }
 
-  override def currentProduction: Int = cp.getOrElse( throw new IllegalStateException("production data not available") )
+  override def currentProduction: Int = cp.getOrElse( throw new IllegalStateException("production data not yet available") )
 
-  override def totalProduction: Int = tp.getOrElse( throw new IllegalStateException("production data not available") )
+  override def totalProduction: Int = tp.getOrElse( throw new IllegalStateException("production data not yet available") )
 }

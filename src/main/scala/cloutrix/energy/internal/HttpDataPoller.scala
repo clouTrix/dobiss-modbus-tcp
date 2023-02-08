@@ -55,17 +55,14 @@ abstract class HttpDataPoller extends ScheduledDataPoller with HttpClient with L
 
   final protected def register[T](action: (String, (String, String => T)), autoStart: Boolean = true)(implicit httpConfig: HttpConfig): Unit = {
     val (id, (path, codec)) = action
-    def task: Runnable = () => {
+    def task: Runnable = {
       def onDataLogged(id: String, data: Any): Unit = {
         logger.debug(s"got data - id: ${id}, path: ${path}, data: ${data}")
         onData(id, doHttpRequest(path, codec))
       }
 
-      Try(onDataLogged(id, doHttpRequest(path, codec)))
-        .recover {
-          case ex: java.net.ConnectException => logger.warn(s"Unable to connect to ${httpConfig.host} on port ${httpConfig.port} - reason: ${ex.getMessage}")
-          case ex: Throwable                 => logger.error(s"Critical error occurred: ${ex.toString}", ex)
-        }
+      () => Try(onDataLogged(id, doHttpRequest(path, codec)))
+              .recover { case err: Throwable => onError(err) }
     }
 
     actions += (id -> (task, autoStart))
@@ -74,6 +71,8 @@ abstract class HttpDataPoller extends ScheduledDataPoller with HttpClient with L
   protected def onStart(): Unit = {}
 
   protected def onStop(): Unit = {}
+
+  protected def onError(cause: Throwable): Unit = logger.error(s"Unhandled error: ${cause.toString}", cause)
 
   protected def onData(id: String, data: Any): Unit
 }

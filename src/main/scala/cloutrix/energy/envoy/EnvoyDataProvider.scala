@@ -39,4 +39,7 @@ class EnvoyDataProvider(config: Config) extends HttpDataPoller with DataProvider
   private var dataHandler: PartialFunction[(String, Any), Unit] = metadataHandler andThen { eid => dataHandler = readingsHandler(eid) }
 
   override def onData(id: String, data: Any): Unit = (dataHandler orElse logAndIgnore)(id, data)
+
+  override def onError(cause: Throwable): Unit =
+    logger.warn(s"error processing HTTP request, ignore and retry - cause: ${cause.toString}")
 }
