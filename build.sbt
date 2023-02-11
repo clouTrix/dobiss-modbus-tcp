@@ -8,8 +8,8 @@ ThisBuild / organizationName := "clouTrix"
 ThisBuild / mainClass        := Some("cloutrix.energy.DobissModbusTcpProxy")
 
 lazy val JavaOpts = Seq(
-  "-Xmx100m",
-  "-Xms16m"
+  "-Xmx24m",
+  "-Xms12m"
 )
 
 lazy val dockerSettings = Seq(
@@ -18,7 +18,14 @@ lazy val dockerSettings = Seq(
   Docker / daemonGroup    := "dobiss",
   Docker / daemonUserUid  := Some("1666"),
   Docker / daemonGroupGid := Some("1666"),
-  dockerBaseImage         := "azul/zulu-openjdk-alpine:17-jre-headless",
+  dockerBaseImage := "alpine:3.17",
+  dockerBasePackages := Seq(),
+  dockerBaseInstaller := Some(packages => s"apk update && apk upgrade && apk add --update ${packages.mkString(" ")}"),
+  dockerJdkImage := Some("azul/zulu-openjdk-alpine:17"),
+  bundledJvmLocation := Some("jre"),
+  dockerJreModuleReplace := true, // we define the java modules ourselves to keep the container as small as possible
+  dockerJreModules := Seq("java.base", "java.sql", "java.naming"),
+
   dockerExposedPorts      := Seq(1502),
   Universal / javaOptions := JavaOpts.map("-J" + _)
 )
@@ -26,9 +33,6 @@ lazy val dockerSettings = Seq(
 lazy val releaseBuildSettings = Seq(
   releaseVersionBump := sbtrelease.Version.Bump.Bugfix,
   releaseVersionFile := baseDirectory.value / "version.sbt",
-
-  publishConfiguration := publishConfiguration.value.withOverwrite(true),
-  releaseIgnoreUntrackedFiles := true,
 
   releaseProcess := Seq[ReleaseStep](
     checkSnapshotDependencies,
