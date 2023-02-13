@@ -1,7 +1,7 @@
 import sbt._
 
 object Version {
-  final val Jsoniter = "2.18.0"
+  final val Jsoniter = "2.20.7"
   final val Logback = "1.2.11"
   final val Logging = "3.9.5"
   final val Config = "1.4.2"
