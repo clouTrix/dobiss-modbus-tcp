@@ -17,6 +17,6 @@ object Plugin extends StrictLogging {
 
   def load(pluginDescs: PluginDesc*): Seq[DataProvider] =
     pluginDescs
-      .tapEach(ps => logger.info(s"activate plugin - name: ${ps.name}, "))
+      .tapEach(ps => logger.info(s"activate plugin - name: ${ps.name}"))
       .map(desc => desc.ctor(desc.config))
 }

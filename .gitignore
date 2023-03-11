@@ -9,3 +9,5 @@ target/
 *.iml
 .idea/
 
+# WEB
+web/

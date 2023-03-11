@@ -1,3 +1,8 @@
+# ModBus-TCP proxy for Dobiss-NXT
+
+[![build](https://github.com/clouTrix/dobiss-modbus-tcp/actions/workflows/build.yml/badge.svg)](https://github.com/clouTrix/dobiss-modbus-tcp/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
 ## Dobiss
 
 Dobiss-NXT has built in support for SMA and Solaredge inverters to query energy production directly from the PV converter.
