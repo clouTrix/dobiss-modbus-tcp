@@ -1,6 +1,4 @@
 <configuration>
-    <jmxConfigurator />
-
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
