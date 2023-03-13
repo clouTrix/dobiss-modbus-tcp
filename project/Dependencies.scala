@@ -1,12 +1,12 @@
 import sbt._
 
 object Version {
-  final val Jsoniter = "2.18.0"
-  final val Logback = "1.2.11"
+  final val Jsoniter = "2.21.3"
+  final val Logback = "1.4.5"
   final val Logging = "3.9.5"
   final val Config = "1.4.2"
   final val ScalaHttp = "2.4.2"
-  final val Netty = "4.1.87.Final"
+  final val Netty = "4.1.89.Final"
   final val Xml = "2.1.0"
 
   final val ScalaTest = "3.2.10"
@@ -16,8 +16,8 @@ object Deps {
   final val Jsoniter: ModuleID = "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % Version.Jsoniter excludeAll ExclusionRule("org.scala-lang")
   final val JsoniterMacros: ModuleID = "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % Version.Jsoniter % "provided"
 
-  final val Logback: ModuleID = "ch.qos.logback" % "logback-classic" % Version.Logback exclude("org.slf4", "slf4j-api") excludeAll (ExclusionRule("javax.mail"), ExclusionRule("javax.servlet"), ExclusionRule("org.codehaus.janino"))
-  final val Logging: ModuleID = "com.typesafe.scala-logging" %% "scala-logging" % Version.Logging excludeAll ExclusionRule("org.scala-lang")
+  final val Logback: ModuleID = "ch.qos.logback" % "logback-classic" % Version.Logback excludeAll (ExclusionRule("javax.mail"), ExclusionRule("javax.servlet"), ExclusionRule("org.codehaus.janino"))
+  final val Logging: ModuleID = "com.typesafe.scala-logging" %% "scala-logging" % Version.Logging excludeAll (ExclusionRule("org.scala-lang"), ExclusionRule("org.slf4", "slf4j-api"))
 
   final val Config: ModuleID = "com.typesafe" % "config" % Version.Config
   final val ScalaHttp: ModuleID = "org.scalaj" %% "scalaj-http" % Version.ScalaHttp excludeAll ExclusionRule("org.scala-lang")
