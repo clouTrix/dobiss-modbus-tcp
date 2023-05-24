@@ -72,9 +72,11 @@ Dobiss-NXT uses this to populate the historical graphs in the UI.
 The **current production** of the PV installation in Watts.  
 Used in the Dobiss-NXT UI to visualize the current status and previous 24 hour graphs (the green values/bars in the graphs below).
 
-|                                         |                                     |
-| --------------------------------------- | ----------------------------------- |
-|![](assets/dobiss-energy-ui-current.png) | ![](assets/dobiss-energy-ui-24h.png)|
+|                                           |
+|-------------------------------------------|
+| ![](assets/dobiss-energy-ui-current.png)  |
+| ![](assets/dobiss-energy-ui-24h.png)      |
+| ![](assets/dobiss-energy-ui-month.png) |
 
 ## Add other inverter types
 
@@ -162,7 +164,7 @@ modbus {
 
 poll.interval = "1 minute"
 
-plugins = {
+plugins {
     EnvoyS {
       class = cloutrix.energy.envoy.EnvoyDataProvider
       config.host = x.x.x.x   // IP address of EnvoyS
@@ -173,9 +175,12 @@ plugins = {
 
 Following environment variables can be used to configure the application:
 
-| env                    | default | description                         |
-|------------------------|---------|-------------------------------------|
-| `MODBUS_TCP_PORT`      | 1502    | listening port of the proxy service |
+| env                           | default | description                                                                                                                                   |
+|-------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `MODBUS_TCP_PORT`             | 1502    | listening port of the proxy service                                                                                                           |
+| `PLUGIN_<name>`               | -       | to define a data-provider through environment variables.<br> `PLUGIN_<name>=[envoy!saj]@<ip-address>[:<port>]`                                |
+| `OFFSET_TOTAL_PRODUCTION`     | 0       | the correction value (in **Wh**) that needs to be added to the total production value coming from the inverters (can be positive or negative) |
+| `OFFSET_IMMEDIATE_PRODUCTION` | 0       | the correction value (in **W**) that needs to be added to the immediate production value coming from the inverters (can be positive or negative)                           |
 
 ## TODOs
  - better (inline) code comments

@@ -28,8 +28,8 @@ object DobissModbusTcpProxy extends StrictLogging {
         // SunSpec describes the registers as SIGNED, while Dobiss-NXT basically throws away the sign
         // which would result in Dobiss-NXT showing 65526W production instead of -10W (10W consumption)
         // ( and EnvoyS remains online during the night, showing negative values for production )
-        Sunspec.AccumulatedCurrentActivePower.address -> (() => positiveOrElse(0)(dataProvider.currentProduction)),
-        Sunspec.TotalYieldWh.address                  -> (() => positiveOrElse(0)(dataProvider.totalProduction))
+        Sunspec.AccumulatedCurrentActivePower.address -> (() => positiveOrElse(0)(dataProvider.currentProduction + config.immediateProductionCorrection)),
+        Sunspec.TotalYieldWh.address                  -> (() => positiveOrElse(0)(dataProvider.totalProduction + config.totalProductionCorrection))
       ))
     )
 

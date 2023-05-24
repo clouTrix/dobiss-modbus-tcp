@@ -15,40 +15,14 @@ import java.util.concurrent.TimeUnit
  *
  */
 class ModbusServer(config: AppConfig, sunspecMappings: SunspecDataMapper) extends LazyLogging {
+  private val bossGroup: EventLoopGroup = new NioEventLoopGroup(1)
+  private val workerGroup: EventLoopGroup = bossGroup
+
   private var serverChannel: Channel = _
 
-  def start(): Unit = {
-    serverChannel = ModbusServer.createServiceListener(sunspecMappings)
-      .bind(config.modbusTcpPort)
-      .sync()
-      .channel()
-
-    serverChannel.closeFuture().addListener((f: ChannelFuture) => {
-      logger.info(s"service channel ${f.channel().localAddress()} closed - shutting down service")
-      ModbusServer.shutdownWorkers()
-    })
-
-    logger.info(s"Modbus-TCP server running on channel: ${serverChannel}")
-  }
-
-  def stop(): Unit = {
-    logger.info("stop server on user request")
-    serverChannel.close().awaitUninterruptibly()
-  }
-
-  def awaitTermination(): Unit = try { ModbusServer.workerGroup.awaitTermination(Long.MaxValue, TimeUnit.NANOSECONDS) } catch { case _: InterruptedException => }
-}
-
-/**
- *
- */
-object ModbusServer {
-  lazy val bossGroup: EventLoopGroup = new NioEventLoopGroup(1)
-  lazy val workerGroup: EventLoopGroup = bossGroup
-
   def shutdownWorkers(): Unit = {
-    ModbusServer.bossGroup.shutdownGracefully()
-    ModbusServer.workerGroup.shutdownGracefully()
+    bossGroup.shutdownGracefully()
+    workerGroup.shutdownGracefully()
   }
 
   def createServiceListener(sunspecMappings: SunspecDataMapper): ServerBootstrap = {
@@ -60,4 +34,24 @@ object ModbusServer {
       .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
       .childHandler(new ModbusChannelInitializer(sunspecMappings))
   }
+  def start(): Unit = {
+    serverChannel = createServiceListener(sunspecMappings)
+      .bind(config.modbusTcpPort)
+      .sync()
+      .channel()
+
+    serverChannel.closeFuture().addListener((f: ChannelFuture) => {
+      logger.info(s"service channel ${f.channel().localAddress()} closed - shutting down service")
+      shutdownWorkers()
+    })
+
+    logger.info(s"Modbus-TCP server running on channel: ${serverChannel}")
+  }
+
+  def stop(): Unit = {
+    logger.info("stop server on user request")
+    serverChannel.close().awaitUninterruptibly()
+  }
+
+  def awaitTermination(): Unit = try { workerGroup.awaitTermination(Long.MaxValue, TimeUnit.NANOSECONDS) } catch { case _: InterruptedException => }
 }

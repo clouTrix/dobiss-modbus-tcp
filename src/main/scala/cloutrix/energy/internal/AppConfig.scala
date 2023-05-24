@@ -7,7 +7,7 @@ import java.net.URI
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.util.Try
+import scala.util.{Success, Try}
 
 class AppConfig (inner: Config) extends LazyLogging {
   logger.debug(s"inner config:\n${inner.root().render(ConfigRenderOptions.concise().setJson(true).setFormatted(true))}")
@@ -18,6 +18,20 @@ class AppConfig (inner: Config) extends LazyLogging {
     length = inner.getDuration(POLL_INTERVAL_CONFIG).toMillis,
     unit = TimeUnit.MILLISECONDS
   )
+
+  lazy val totalProductionCorrection: Int = Try(inner.getInt(CORRECTIONS_TOTAL_PRODUCTION_CONFIG)) match {
+    case Success(offset) =>
+      logger.warn(s"total production values are forcefully corrected with: ${offset}Wh")
+      offset
+    case _ => 0
+  }
+
+  lazy val immediateProductionCorrection: Int = Try(inner.getInt(CORRECTIONS_IMMEDIATE_PRODUCTION_CONFIG)) match {
+    case Success(offset) =>
+      logger.warn(s"immediate production values are forcefully corrected with: ${offset}W")
+      offset
+    case _ => 0
+  }
 
   lazy val plugins: List[PluginDesc] = inner.getObject(PLUGINS_CONFIG).entrySet().asScala
     .map { e => e.getKey -> e.getValue }
@@ -36,6 +50,8 @@ object AppConfig {
   private final val PLUGIN_CLASS_CONFIG: String = "class"
   private final val PLUGIN_CONFIG_BLOCK: String = "config"
   private final val POLL_INTERVAL_CONFIG: String = "poll.interval"
+  private final val CORRECTIONS_TOTAL_PRODUCTION_CONFIG: String = "corrections.total-production"
+  private final val CORRECTIONS_IMMEDIATE_PRODUCTION_CONFIG: String = "corrections.immediate-production"
 
   def load(config: Config = ConfigFactory.load(), envs: Map[String, String] = sys.env): AppConfig = {
     var cfg = config
