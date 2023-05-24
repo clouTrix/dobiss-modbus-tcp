@@ -22,15 +22,20 @@ class FullAppTest extends AnyWordSpec with Matchers with BeforeAndAfterAll with 
   private val waitTime = Span(pollInterval.toMillis * 2, Milliseconds)
   private val waitInterval = waitTime.scaledBy(0.5)
 
-  // loaded from 'application.conf' and overrides for HTTP servers
-  private def configForTest(config: Config): Config = {
-    config
+  private val configForTest =
+    (_: Config)
       .withValue("modbus.tcp.port", ConfigValueFactory.fromAnyRef(Int.box(listeningPort)))
       .withValue("poll.interval", ConfigValueFactory.fromAnyRef(s"${pollInterval.toMillis} milliseconds"))
-      .withValue("plugins.EnvoyS.config.port", ConfigValueFactory.fromAnyRef(Int.box(mockEnvoy.port)))
+      .withValue("plugins.SAJ-1.class", ConfigValueFactory.fromAnyRef(classOf[cloutrix.energy.saj.SajDataProvider].getName))
+      .withValue("plugins.SAJ-1.config.host", ConfigValueFactory.fromAnyRef("localhost"))
       .withValue("plugins.SAJ-1.config.port", ConfigValueFactory.fromAnyRef(Int.box(mockSaj_1.port)))
+      .withValue("plugins.SAJ-2.class", ConfigValueFactory.fromAnyRef(classOf[cloutrix.energy.saj.SajDataProvider].getName))
+      .withValue("plugins.SAJ-2.config.host", ConfigValueFactory.fromAnyRef("localhost"))
       .withValue("plugins.SAJ-2.config.port", ConfigValueFactory.fromAnyRef(Int.box(mockSaj_2.port)))
-  }
+      .withValue("plugins.EnvoyS.class", ConfigValueFactory.fromAnyRef(classOf[cloutrix.energy.envoy.EnvoyDataProvider].getName))
+      .withValue("plugins.EnvoyS.config.host", ConfigValueFactory.fromAnyRef("localhost"))
+      .withValue("plugins.EnvoyS.config.port", ConfigValueFactory.fromAnyRef(Int.box(mockEnvoy.port)))
+
 
   override def beforeAll(): Unit = {
     mockEnvoy.register("/ivp/meters")(Envoy.sampleMeter)
