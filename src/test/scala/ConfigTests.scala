@@ -1,4 +1,4 @@
-import cloutrix.energy.internal.{AppConfig, PluginDesc}
+import cloutrix.energy.internal.AppConfig
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

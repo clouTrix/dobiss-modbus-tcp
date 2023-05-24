@@ -1,6 +1,5 @@
 import cloutrix.energy.DobissModbusTcpProxy
 import com.typesafe.config.{Config, ConfigValueFactory}
-import envoy.Envoy
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.should.Matchers
