@@ -4,8 +4,15 @@ import cloutrix.energy.internal.{DataProviderCache, HttpConfig, HttpDataPoller}
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.util.Try
+
 class EnvoyDataProvider(config: Config) extends HttpDataPoller with DataProviderCache with LazyLogging {
-  implicit val httpConfig: HttpConfig = HttpConfig(host = config.getString("host"), port = config.getInt("port"))
+  implicit val httpConfig: HttpConfig = HttpConfig(
+    host = config.getString("host"),
+    port = config.getInt("port"),
+    tls = true,
+    authToken = Try(config.getString("auth-token")).toOption
+  )
 
   register("readings" -> ( "/ivp/meters/readings" , EnvoyMeterReading.read ), autoStart = false )
   register("metadata" -> ( "/ivp/meters"          , EnvoyMeterMetadata.read), autoStart = true  )

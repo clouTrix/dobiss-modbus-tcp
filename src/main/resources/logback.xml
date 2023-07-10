@@ -7,9 +7,9 @@
         </encoder>
     </appender>
 
-    <logger name="cloutrix" level="info" />
+    <logger name="cloutrix" level="debug" />
 
-    <root level="warn">
+    <root level="info">
         <appender-ref ref="console"/>
     </root>
 
