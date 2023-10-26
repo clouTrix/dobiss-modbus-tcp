@@ -89,6 +89,12 @@ object AppConfig {
       .collect { case (id, (typ, Some(uri))) => id -> (typ, (uri.getHost -> uri.getPort)) }
       .map { case (id, (typ, (host, port))) => id -> (config.getConfig(typ), (host -> port)) }
       .map {
+        case (id, (cfg, (host, port))) if port == 443 =>
+          id -> cfg
+            .withValue("config.host", ConfigValueFactory.fromAnyRef(host))
+            .withValue("config.port", ConfigValueFactory.fromAnyRef(Int.box(port)))
+            .withValue("config.tls", ConfigValueFactory.fromAnyRef(Boolean.box(true)))
+
         case (id, (cfg, (host, port))) if port > 0 =>
           id -> cfg
             .withValue("config.host", ConfigValueFactory.fromAnyRef(host))
