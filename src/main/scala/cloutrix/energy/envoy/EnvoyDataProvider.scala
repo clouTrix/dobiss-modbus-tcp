@@ -6,16 +6,20 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Try
 
-class EnvoyDataProvider(config: Config) extends HttpDataPoller with DataProviderCache with LazyLogging {
+class EnvoyDataProvider(config: Config, tokenProvider: () => String) extends HttpDataPoller with DataProviderCache with LazyLogging {
   implicit val httpConfig: HttpConfig = HttpConfig(
     host = config.getString("host"),
     port = config.getInt("port"),
-    tls = true,
-    authToken = Try(config.getString("auth-token")).toOption
+    tls = true
   )
 
   register("readings" -> ( "/ivp/meters/readings" , EnvoyMeterReading.read ), autoStart = false )
   register("metadata" -> ( "/ivp/meters"          , EnvoyMeterMetadata.read), autoStart = true  )
+
+  // will only be called upon reception of a 401
+  override def onAuthenticationHeaders(): Seq[(String, String)] = Seq(
+    "Authorization" -> "Bearer %s".format(tokenProvider())
+  )
 
   private val metadataHandler: PartialFunction[(String, Any), Long] = {
     case (_, d: EnvoyMeterMetas) if d.all.exists(_.measurementType == "production") =>

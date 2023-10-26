@@ -14,8 +14,7 @@ case class HttpConfig(
                        port: Int,
                        connectionTimeout: Duration = HttpClient.DefaultConnectionTimeout,
                        readTimeout: Duration = HttpClient.DefaultReadTimeout,
-                       tls: Boolean = false,
-                       authToken: Option[String] = None
+                       tls: Boolean = false
                      )
 
 object HttpClient {
@@ -24,6 +23,8 @@ object HttpClient {
 }
 
 trait HttpClient extends LazyLogging {
+  private var authHeaders: Seq[(String, String)] = onAuthenticationHeaders()
+
   protected def doHttpRequest[T](path: String, reader: String => T)(implicit config: HttpConfig): T = {
     def urlFor(path: String) = Some(new URL(if (config.tls) "https" else "http", config.host, config.port, path))
       .tapEach(url => logger.debug(s"HTTP URL: ${url.toString}"))
@@ -47,4 +48,6 @@ trait HttpClient extends LazyLogging {
 
     reader(reqFor(urlFor(path)).asString.body)
   }
+
+  protected def onAuthenticationHeaders(): Seq[(String, String)]
 }
