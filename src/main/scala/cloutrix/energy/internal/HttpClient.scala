@@ -1,7 +1,7 @@
 package cloutrix.energy.internal
 
 import com.typesafe.scalalogging.LazyLogging
-import scalaj.http.{Http, HttpOptions}
+import scalaj.http.{Http, HttpOptions, HttpRequest, HttpResponse}
 
 import java.net.URL
 import scala.Option.option2Iterable
@@ -18,36 +18,33 @@ case class HttpConfig(
                      )
 
 object HttpClient {
-  final val DefaultConnectionTimeout: Duration = 2.seconds
-  final val DefaultReadTimeout: Duration = 5.seconds
+  final val DefaultConnectionTimeout: Duration = 10.seconds
+  final val DefaultReadTimeout: Duration = 10.seconds
 }
 
 trait HttpClient extends LazyLogging {
-  private var authHeaders: Seq[(String, String)] = onAuthenticationHeaders()
+  protected def on401(): Unit = {}
 
-  protected def doHttpRequest[T](path: String, reader: String => T)(implicit config: HttpConfig): T = {
-    def urlFor(path: String) = Some(new URL(if (config.tls) "https" else "http", config.host, config.port, path))
-      .tapEach(url => logger.debug(s"HTTP URL: ${url.toString}"))
-      .head
+  protected def addCustomHeaders(req: HttpRequest): HttpRequest = req
 
-    def reqFor(url: URL) = {
-      def plainRequest = Http(url.toString)
-        .timeout(config.connectionTimeout.toMillis.toInt, config.readTimeout.toMillis.toInt)
-        .options(HttpOptions.allowUnsafeSSL)
+  def urlFor(path: String)(implicit config: HttpConfig): URL = Some(new URL(if (config.tls) "https" else "http", config.host, config.port, path))
+    .tapEach(url => logger.debug(s"HTTP URL: ${url.toString}"))
+    .head
 
-      val req = config.authToken
-        .map("Bearer %s".format(_))
-        .map(plainRequest.header("Authorization", _))
-        .getOrElse(
-          plainRequest
-        )
+  def reqFor(url: URL)(implicit config: HttpConfig): HttpRequest = Http(url.toString)
+    .timeout(config.connectionTimeout.toMillis.toInt, config.readTimeout.toMillis.toInt)
+    .options(HttpOptions.allowUnsafeSSL)
 
-      logger.debug(s"HTTP REQUEST: ${req.toString}")
-      req
-    }
-
-    reader(reqFor(urlFor(path)).asString.body)
+  protected def doHttpRequest[T](path: String, reader: String => T)(implicit config: HttpConfig): Option[T] = {
+    Some(reqFor(urlFor(path)))
+      .tapEach(req => logger.debug(s"HTTP REQUEST: ${req.toString}"))
+      .map(addCustomHeaders(_).asString)
+      .flatMap {
+        case HttpResponse(_, 401, _) => on401(); None
+        case resp if resp.is2xx => Some(reader(resp.body))
+        case resp =>
+          logger.error(s"error executing HTTP request - response-code: ${resp.code}")
+          None
+      }.headOption
   }
-
-  protected def onAuthenticationHeaders(): Seq[(String, String)]
 }

@@ -8,7 +8,7 @@ case class PluginDesc(name: String, config: Config, ctor: Config => DataProvider
 object Plugin extends StrictLogging {
   def loadClass(clazz: String): Config => DataProvider = {
     val ctor = Class.forName(clazz).getDeclaredConstructor(classOf[Config])
-    logger.debug(s"loaded plugin - class: ${ctor.getName}")
+    logger.info(s"loaded plugin - class: ${ctor.getName}")
 
     config => ctor
                .newInstance(config)

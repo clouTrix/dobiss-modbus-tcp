@@ -74,5 +74,5 @@ abstract class HttpDataPoller extends ScheduledDataPoller with HttpClient with L
 
   protected def onError(cause: Throwable): Unit = logger.error(s"Unhandled error: ${cause.toString}", cause)
 
-  protected def onData(id: String, data: Any): Unit
+  protected def onData(id: String, data: Option[Any]): Unit
 }
