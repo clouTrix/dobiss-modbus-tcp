@@ -1,8 +1,8 @@
-import sbt._
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import sbt.*
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations.*
 
 ThisBuild / name             := "dobiss-modbus-tcp"
-ThisBuild / scalaVersion     := "2.13.10"
+ThisBuild / scalaVersion     := "2.13.12"
 ThisBuild / organization     := "com.cloutrix"
 ThisBuild / organizationName := "clouTrix"
 ThisBuild / mainClass        := Some("cloutrix.energy.DobissModbusTcpProxy")

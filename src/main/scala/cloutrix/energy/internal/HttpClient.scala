@@ -27,11 +27,11 @@ trait HttpClient extends LazyLogging {
 
   protected def addCustomHeaders(req: HttpRequest): HttpRequest = req
 
-  def urlFor(path: String)(implicit config: HttpConfig): URL = Some(new URL(if (config.tls) "https" else "http", config.host, config.port, path))
+  protected def urlFor(path: String)(implicit config: HttpConfig): URL = Some(new URL(if (config.tls) "https" else "http", config.host, config.port, path))
     .tapEach(url => logger.debug(s"HTTP URL: ${url.toString}"))
     .head
 
-  def reqFor(url: URL)(implicit config: HttpConfig): HttpRequest = Http(url.toString)
+  protected def reqFor(url: URL)(implicit config: HttpConfig): HttpRequest = Http(url.toString)
     .timeout(config.connectionTimeout.toMillis.toInt, config.readTimeout.toMillis.toInt)
     .options(HttpOptions.allowUnsafeSSL)
 

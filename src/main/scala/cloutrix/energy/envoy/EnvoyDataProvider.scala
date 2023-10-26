@@ -17,11 +17,13 @@ object Session {
   val read: String => Session = readFromString(_: String)(JsonCodec)
 }
 
-case class Token(generation_time: Long, token: String, expires_at: Long)
-object Token {
-  private val JsonCodec = JsonCodecMaker.make[Token]
-  val read: String => Token = readFromString(_: String)(JsonCodec)
-}
+//FIXME: although Content-Type is set to 'application/json', the API returns plain text
+//
+//case class Token(generation_time: Long, token: String, expires_at: Long)
+//object Token {
+//  private val JsonCodec = JsonCodecMaker.make[Token]
+//  val read: String => Token = readFromString(_: String)(JsonCodec)
+//}
 
 object EnvoyDataProvider extends StrictLogging {
   def defaultTokenProvider(config: Config): Option[String] = {
@@ -58,7 +60,7 @@ object EnvoyDataProvider extends StrictLogging {
 
     logger.warn(s"request new JWT token - sessionId: $sessionId, serial: $serial, username: $username")
     req.asString match {
-      //FIXME: althoug Content-Type is set to 'application/json', the API returns plain text
+      //FIXME: although Content-Type is set to 'application/json', the API returns plain text
       //case resp if resp.is2xx => Try(Token.read(resp.body).token)
       case resp if resp.is2xx => Success(resp.body)
 
