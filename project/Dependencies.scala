@@ -1,15 +1,15 @@
 import sbt.*
 
 object Version {
-  final val Jsoniter = "2.24.2"
-  final val Logback = "1.4.11"
+  final val Jsoniter = "2.31.1"
+  final val Logback = "1.5.12"
   final val Logging = "3.9.5"
-  final val Config = "1.4.2"
+  final val Config = "1.4.3"
   final val ScalaHttp = "2.4.2"
-  final val Netty = "4.1.100.Final"
-  final val Xml = "2.1.0"
+  final val Netty = "4.1.114.Final"
+  final val Xml = "2.3.0"
 
-  final val ScalaTest = "3.2.15"
+  final val ScalaTest = "3.2.19"
 }
 
 object Deps {

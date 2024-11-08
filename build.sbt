@@ -2,14 +2,14 @@ import sbt.*
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations.*
 
 ThisBuild / name             := "dobiss-modbus-tcp"
-ThisBuild / scalaVersion     := "2.13.12"
+ThisBuild / scalaVersion     := "2.13.15"
 ThisBuild / organization     := "com.cloutrix"
 ThisBuild / organizationName := "clouTrix"
 ThisBuild / mainClass        := Some("cloutrix.energy.DobissModbusTcpProxy")
 
 lazy val JavaOpts = Seq(
-  "-Xmx100m",
-  "-Xms16m"
+  "-Xmx64m",
+  "-Xms20m"
 )
 
 lazy val dockerSettings = Seq(
