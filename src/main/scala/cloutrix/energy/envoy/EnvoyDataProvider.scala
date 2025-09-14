@@ -73,7 +73,7 @@ object EnvoyDataProvider extends StrictLogging {
         logger.info(s"request new JWT token - sessionId: $sessionId, serial: $serial, username: $username")
 
         logger.debug(s"HTTP request: ${req.toString}")
-        req.send(HttpClient.Backend) match {
+        req.send(HttpClient.SecureBackend) match {
             case resp @ Response(body, statusCode, _, _, _, _) if statusCode.isSuccess =>
                 logger.debug(s"HTTP response: ${resp.toString}")
                 Success(body)
@@ -96,7 +96,7 @@ object EnvoyDataProvider extends StrictLogging {
         logger.info(s"request new Management session - username: $username")
 
         logger.debug(s"HTTP request: ${req.toString}")
-        req.send(HttpClient.Backend) match {
+        req.send(HttpClient.SecureBackend) match {
             case resp @ Response(body, statusCode, _, _, _, _) if statusCode.isSuccess =>
                 logger.debug(s"HTTP response: ${resp.toString}")
                 Success(body.session_id)
