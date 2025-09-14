@@ -8,12 +8,12 @@ import io.netty.channel.{ChannelHandlerContext, ChannelOutboundHandlerAdapter, C
  *
  */
 class ModbusEncoder extends ChannelOutboundHandlerAdapter with LazyLogging {
-  override def write(ctx: ChannelHandlerContext, msg: Any, promise: ChannelPromise): Unit = {
-    logger.debug(s"write [${ctx.channel()}] - msg: ${msg}")
+    override def write(ctx: ChannelHandlerContext, msg: Any, promise: ChannelPromise): Unit = {
+        logger.debug(s"write [${ctx.channel()}] - msg: ${msg}")
 
-    msg match {
-      case frame: ModbusFrame => ctx.write(frame.encode(ctx)(), promise)
-      case _                  => super.write(ctx, msg, promise)
+        msg match {
+            case frame: ModbusFrame => ctx.write(frame.encode(ctx)(), promise)
+            case _                  => super.write(ctx, msg, promise)
+        }
     }
-  }
 }

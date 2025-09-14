@@ -8,7 +8,7 @@ package cloutrix.energy.sunspec
 // ------+--------------------------------------------------+----+-----+------+----
 
 object Sunspec {
-  sealed trait Register { def address: Int }
-  final case object AccumulatedCurrentActivePower extends Register { val address = 30775 }
-  final case object TotalYieldWh                  extends Register { val address = 30529 }
+    sealed trait Register { def address: Int }
+    final case object AccumulatedCurrentActivePower extends Register { val address = 30775 }
+    final case object TotalYieldWh                  extends Register { val address = 30529 }
 }

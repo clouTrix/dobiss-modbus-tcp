@@ -9,13 +9,13 @@ import io.netty.handler.codec.ByteToMessageDecoder
 import java.util.{List => JList}
 
 class ModbusDecoder extends ByteToMessageDecoder with LazyLogging {
-  override def decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: JList[AnyRef]): Unit = {
-    logger.debug(s"decode [${ctx.channel()}] - buffer: ${buf}, data: ${ByteBufUtil.hexDump(buf)}")
+    override def decode(ctx: ChannelHandlerContext, buf: ByteBuf, out: JList[AnyRef]): Unit = {
+        logger.debug(s"decode [${ctx.channel()}] - buffer: ${buf}, data: ${ByteBufUtil.hexDump(buf)}")
 
-    if(buf.readableBytes() < (Modbus.MBAP_LENGTH + 1)) return // + function code
+        if(buf.readableBytes() < (Modbus.MBAP_LENGTH + 1)) return // + function code
 
-    out.add(
-      ModbusFrame.decode(buf)
-    )
-  }
+        out.add(
+            ModbusFrame.decode(buf)
+        )
+    }
 }
