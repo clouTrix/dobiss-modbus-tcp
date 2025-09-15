@@ -13,18 +13,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 21
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: 'sbt'
-    - name: Clean workspace
-      run: sbt clean update
-    - name: Build project
-      run: sbt compile
-    - name: Build tests
-      run: sbt test:compile
-    - name: Run tests
-      run: sbt test
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: sbt
+      - name: Setup sbt launcher
+        uses: sbt/setup-sbt@v1
+      - name: Clean workspace
+        run: sbt clean update
+      - name: Build project
+        run: sbt compile
+      - name: Build tests
+        run: sbt Test/compile
+      - name: Run tests
+        run: sbt test
