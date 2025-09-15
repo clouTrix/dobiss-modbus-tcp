@@ -32,6 +32,21 @@ The table below gives an overview of the Modbus registers that are being read by
 The idea is thus to map the registers depicted above to the correct stats coming from EnvoyS.
 EnvoyS has a bunch of APIs to query stuff, but the one that gives us the most useful data is `/ivp/meters/readings`.
 
+Get Login Token:
+```
+The access token can be generated via shell commands or python commands through CLI as given below:
+
+Shell command:
+user='<UserName>'
+password='<Password>'
+envoy_serial='<Envoy_SerilaNo>'
+
+session_id=$(curl -X POST https://enlighten.enphaseenergy.com/login/login.json? -F "user[email]=$user" -F "user[password]=$password" | jq -r ".session_id")
+web_token=$(curl -X POST https://entrez.enphaseenergy.com/tokens -H "Content-Type: application/json" -d "{\"session_id\": \"$session_id\", \"serial_num\": \"$envoy_serial\", \"username\": \"$user\"}")
+
+The variable web_token is the access token.
+```
+
 ### /ivp/meters
 
 The `/ivp/meters` endpoint can be used to get the `eid` for the production statistics queried through `/ivp/meters/readings`.
@@ -106,7 +121,7 @@ to support other brands, as long as they have an HTTP API that can be used to qu
     // > cache(currentProduction = ..., totalProduction = ...)
   }
   ```
-- configure your DataProvider (in [application.conf](src/test/resources/application.conf))
+- configure your DataProvider (in [application.conf](src/test/resources/test-app.conf))
   ```
   plugins {
     MyInverter = ${mine}

@@ -6,11 +6,11 @@ import io.netty.buffer.ByteBuf
 case class ReadHoldingRegisters(address: Int, quantity: Int) extends ModbusFunction(0x03)
 
 case class ReadHoldingRegistersResponse(value: Int) extends ModbusFunction(0x03) {
-  def calculatedLength: Int = 1 + 1 + 4
+    def calculatedLength: Int = 1 + 1 + 4
 
-  override def writeBuffer(buf: ByteBuf): ByteBuf =
-    buf
-      .writeByte(code)
-      .writeByte(4)
-      .writeInt(value)
+    override def writeBuffer(buf: ByteBuf): ByteBuf =
+        buf
+         .writeByte(code)
+         .writeByte(4)
+         .writeInt(value)
 }

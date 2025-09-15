@@ -7,6 +7,6 @@ case class EnvoyMeterReading(eid: Long, activePower: Double, actEnergyDlvd: Doub
 case class EnvoyMeterReadings(all: Seq[EnvoyMeterReading])
 
 object EnvoyMeterReading {
-  private val JsonCodec = JsonCodecMaker.make[Seq[EnvoyMeterReading]]
-  val read : String => EnvoyMeterReadings = (raw: String) => EnvoyMeterReadings(all = readFromString(raw)(EnvoyMeterReading.JsonCodec))
+    private val JsonCodec = JsonCodecMaker.make[Seq[EnvoyMeterReading]]
+    val read : String => EnvoyMeterReadings = (raw: String) => EnvoyMeterReadings(all = readFromString(raw)(EnvoyMeterReading.JsonCodec))
 }
